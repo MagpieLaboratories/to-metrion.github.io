@@ -1542,15 +1542,13 @@ $(document).ready(function () {
 			return object.set ? "&nbsp;&nbsp;&nbsp;" + object.set : "<b>" + object.text + "</b>";
 		},
 		"query": function (query) {
-			var setOptions = getSetOptions();
 			var pageSize = 30;
-			var results = [];
-			for (var i = 0; i < setOptions.length; i++) {
-				var pokeName = setOptions[i].pokemon.toUpperCase();
-				if (!query.term || pokeName.indexOf(query.term.toUpperCase()) === 0 || pokeName.includes("" + query.term.toUpperCase())) {
-					results.push(setOptions[i]);
-				}
-			}
+			const queryIndexComparator = (query) =>
+			(a, b) => a.pokemon.toUpperCase().indexOf(query.term.toUpperCase()) == b.pokemon.toUpperCase().indexOf(query.term.toUpperCase())
+				|| ( a.pokemon.toUpperCase().indexOf(query.term.toUpperCase()) > 0 && b.pokemon.toUpperCase().indexOf(query.term.toUpperCase()) > 0 )
+				? 0 : a.pokemon.toUpperCase().indexOf(query.term.toUpperCase()) < b.pokemon.toUpperCase().indexOf(query.term.toUpperCase()) ? -1 : 1
+			var results = getSetOptions().filter(a => !query.term || a.pokemon.toUpperCase().includes(query.term.toUpperCase())
+			).sort(queryIndexComparator(query));
 			query.callback({
 				"results": results.slice((query.page - 1) * pageSize, query.page * pageSize),
 				"more": results.length >= query.page * pageSize
